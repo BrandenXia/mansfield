@@ -29,6 +29,7 @@ type GameState = {
       cardsToDraw: number;
       capturedCard: CardType | null;
     }
+  | { phase: GamePhase.GameOver }
 );
 
 enum GameActionType {
@@ -134,6 +135,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             default: mainValue += 1;
           }
 
+          // TODO: continue to one more round of modifier application even when
+          // there's no card left in the deck, so that the player can see the
+          // final result of their play
           if (state.playedHand.modifiers.length !== 0)
             return {
               ...state,
@@ -142,13 +146,25 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
               captureEnemyCard,
               cardsToAdd,
             };
-          else
+          if (mainValue < KIND2NUMBER[state.enemyHand.kind])
             return {
               ...state,
-              phase: GamePhase.DrawCards,
-              cardsToDraw: drawNextRound,
-              capturedCard: captureEnemyCard ? state.enemyHand : null,
+              phase: GamePhase.GameOver,
             };
+
+          if (state.remainingDeck.length === 0)
+            return {
+              ...state,
+              // TODO: use a separate state for win/loss, or continue to use a new deck when there's no card left
+              phase: GamePhase.GameOver,
+            };
+
+          return {
+            ...state,
+            phase: GamePhase.DrawCards,
+            cardsToDraw: drawNextRound,
+            capturedCard: captureEnemyCard ? state.enemyHand : null,
+          };
         default:
           throw new Error("Invalid action type");
       }
@@ -156,11 +172,19 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const playerHand = [...state.playerHand];
       playerHand.push(...state.remainingDeck.slice(0, state.cardsToDraw));
       playerHand.push(...(state.capturedCard ? [state.capturedCard] : []));
+      let remainingDeck = state.remainingDeck.slice(state.cardsToDraw);
+      const enemyHand = remainingDeck[0]!;
+      remainingDeck = remainingDeck.slice(1);
+
       return {
         ...state,
         phase: GamePhase.PlayerTurn,
         playerHand,
+        enemyHand,
+        remainingDeck,
       };
+    default:
+      return state;
   }
 };
 
