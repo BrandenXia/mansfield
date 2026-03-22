@@ -36,10 +36,10 @@ const Card: FC<{
     <div className={`card-container ${flipped ? "flipped" : ""}`}>
       <div className="card-inner">
         <div className="card-face card-front">
-          <img src={`/public/cards/Suit=${suit},Number=${kind}.svg`}></img>
+          <img src={`./public/cards/Suit=${suit},Number=${kind}.svg`}></img>
         </div>
         <div className="card-face card-back">
-          <img src={`/public/cards/BackBlue.svg`}></img>
+          <img src={`./public/cards/BackBlue.svg`}></img>
         </div>
       </div>
     </div>
