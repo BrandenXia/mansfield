@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import Card from "@/components/Card";
 import HelpModal from "@/components/HelpModal";
 import useGameState, { GamePhase } from "@/hooks/game-state";
@@ -6,10 +7,27 @@ import useLanguage from "@/hooks/use-language";
 
 import "./index.css";
 
+const phaseVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.95, y: 8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0.25, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: -8,
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
+
 const App = () => {
   const { gameState, useCard, nextPhase, resetGame } = useGameState();
   const [selectedIdxs, setSelectedIdxs] = useState<number[]>([]);
   const [showHelp, setShowHelp] = useState(false);
+  const [isBattling, setIsBattling] = useState(false);
   const t = useLanguage();
 
   const toggleCard = (idx: number) => {
@@ -23,6 +41,21 @@ const App = () => {
     if (selectedIdxs.length === 0) return;
     useCard(selectedIdxs);
     setSelectedIdxs([]);
+  };
+
+  const handleNextPhase = () => {
+    if (
+      gameState.phase === GamePhase.Animation &&
+      gameState.playedHand.modifiers.length === 0
+    ) {
+      setIsBattling(true);
+      setTimeout(() => {
+        setIsBattling(false);
+        nextPhase();
+      }, 650);
+    } else {
+      nextPhase();
+    }
   };
 
   return (
@@ -39,118 +72,290 @@ const App = () => {
 
       <section className="enemy-section">
         <h2>{t.enemy}</h2>
-        <Card card={gameState.enemyHand} />
+        <motion.div
+          key={`enemy-${gameState.enemyHand.kind}-${gameState.enemyHand.suit}`}
+          initial={{ y: -50, opacity: 0, scale: 0.8 }}
+          animate={
+            isBattling
+              ? { x: [0, -12, 12, -8, 8, 0], scale: [1, 1.08, 1.08, 1] }
+              : { y: 0, opacity: 1, scale: 1 }
+          }
+          transition={
+            isBattling
+              ? { duration: 0.55, ease: "easeInOut" }
+              : { type: "spring", stiffness: 220, damping: 22 }
+          }
+        >
+          <Card card={gameState.enemyHand} />
+        </motion.div>
       </section>
 
       <section className="game-info">
-        {gameState.phase === GamePhase.PlayerTurn && (
-          <>
-            <p>{t.selectCardsHint}</p>
-            <p>{t.deckRemaining(gameState.remainingDeck.length)}</p>
-            <button
-              className="btn"
-              disabled={selectedIdxs.length === 0}
-              onClick={playCards}
+        <AnimatePresence mode="wait">
+          {gameState.phase === GamePhase.PlayerTurn && (
+            <motion.div
+              key="player-turn"
+              variants={phaseVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="phase-content"
             >
-              {selectedIdxs.length === 0
-                ? t.selectCardsToPlay
-                : t.playCards(selectedIdxs.length)}
-            </button>
-          </>
-        )}
+              <p>{t.selectCardsHint}</p>
+              <p>{t.deckRemaining(gameState.remainingDeck.length)}</p>
+              <motion.button
+                className="btn"
+                disabled={selectedIdxs.length === 0}
+                onClick={playCards}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {selectedIdxs.length === 0
+                  ? t.selectCardsToPlay
+                  : t.playCards(selectedIdxs.length)}
+              </motion.button>
+            </motion.div>
+          )}
 
-        {gameState.phase === GamePhase.Animation && (
-          <>
-            <div className="animation-info">
-              <span className="value-label">{t.currentValue}</span>
-              <span className="value-number">{gameState.mainValue}</span>
-            </div>
-            <div className="played-cards">
-              <div className="played-section">
-                <span className="section-label">{t.mainCard}</span>
-                <Card card={gameState.playedHand.main} />
+          {gameState.phase === GamePhase.Animation && (
+            <motion.div
+              key="animation"
+              variants={phaseVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="phase-content"
+            >
+              <div className="animation-info">
+                <span className="value-label">{t.currentValue}</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={gameState.mainValue}
+                    className="value-number"
+                    initial={{ scale: 1.5, opacity: 0, y: -12 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.6, opacity: 0, y: 10 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 18 }}
+                  >
+                    {gameState.mainValue}
+                  </motion.span>
+                </AnimatePresence>
               </div>
-              {gameState.playedHand.modifiers.length > 0 && (
+              <div className="played-cards">
                 <div className="played-section">
-                  <span className="section-label">
-                    {t.modifiers(gameState.playedHand.modifiers.length)}
-                  </span>
-                  <div className="card-row">
-                    {gameState.playedHand.modifiers.map((card, i) => (
-                      <Card
-                        key={`${card.kind}-${card.suit}-${i}`}
-                        card={card}
-                      />
-                    ))}
-                  </div>
+                  <span className="section-label">{t.mainCard}</span>
+                  <motion.div
+                    animate={
+                      isBattling
+                        ? { x: [0, 10, -10, 7, -5, 0], scale: [1, 1.1, 1.1, 1] }
+                        : {}
+                    }
+                    transition={{ duration: 0.55, ease: "easeInOut" }}
+                  >
+                    <Card card={gameState.playedHand.main} />
+                  </motion.div>
                 </div>
-              )}
-            </div>
-            <button className="btn" onClick={nextPhase}>
-              {gameState.playedHand.modifiers.length > 0
-                ? t.applyNextModifier
-                : t.continue}
-            </button>
-          </>
-        )}
-
-        {gameState.phase === GamePhase.DrawCards && (
-          <>
-            <p>{t.drawCards(gameState.cardsToDraw)}</p>
-            {gameState.capturedCard && (
-              <div className="captured-card">
-                <span className="section-label">{t.captured}</span>
-                <Card card={gameState.capturedCard} />
+                {gameState.playedHand.modifiers.length > 0 && (
+                  <div className="played-section">
+                    <span className="section-label">
+                      {t.modifiers(gameState.playedHand.modifiers.length)}
+                    </span>
+                    <div className="card-row">
+                      <AnimatePresence>
+                        {gameState.playedHand.modifiers.map((card, i) => (
+                          <motion.div
+                            key={`mod-${card.kind}-${card.suit}-${i}`}
+                            layout
+                            initial={{ scale: 0.6, opacity: 0, y: -20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{
+                              scale: 0.5,
+                              opacity: 0,
+                              y: -30,
+                              transition: { duration: 0.28 },
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                            }}
+                          >
+                            <Card card={card} />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-            <button className="btn" onClick={nextPhase}>
-              {t.drawCardsBtn}
-            </button>
-          </>
-        )}
+              <motion.button
+                className="btn"
+                onClick={handleNextPhase}
+                disabled={isBattling}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {gameState.playedHand.modifiers.length > 0
+                  ? t.applyNextModifier
+                  : t.continue}
+              </motion.button>
+            </motion.div>
+          )}
 
-        {gameState.phase === GamePhase.GameOver && (
-          <>
-            <p>{t.gameOver}</p>
-            <button className="btn" onClick={resetGame}>
-              {t.playAgain}
-            </button>
-          </>
-        )}
+          {gameState.phase === GamePhase.DrawCards && (
+            <motion.div
+              key="draw-cards"
+              variants={phaseVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="phase-content"
+            >
+              <p>{t.drawCards(gameState.cardsToDraw)}</p>
+              {gameState.capturedCard && (
+                <motion.div
+                  className="captured-card"
+                  initial={{ rotateY: 90, opacity: 0 }}
+                  animate={{ rotateY: 0, opacity: 1 }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                >
+                  <span className="section-label">{t.captured}</span>
+                  <Card card={gameState.capturedCard} />
+                </motion.div>
+              )}
+              <motion.button
+                className="btn"
+                onClick={nextPhase}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {t.drawCardsBtn}
+              </motion.button>
+            </motion.div>
+          )}
 
-        {gameState.phase === GamePhase.Win && (
-          <>
-            <p>{t.youWin}</p>
-            <button className="btn" onClick={resetGame}>
-              {t.playAgain}
-            </button>
-          </>
-        )}
+          {gameState.phase === GamePhase.GameOver && (
+            <motion.div
+              key="game-over"
+              variants={phaseVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="phase-content"
+            >
+              <motion.p
+                className="game-over-text"
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 14,
+                  delay: 0.1,
+                }}
+              >
+                {t.gameOver}
+              </motion.p>
+              <motion.button
+                className="btn"
+                onClick={resetGame}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {t.playAgain}
+              </motion.button>
+            </motion.div>
+          )}
+
+          {gameState.phase === GamePhase.Win && (
+            <motion.div
+              key="win"
+              variants={phaseVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="phase-content"
+            >
+              <motion.p
+                className="win-text"
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: [0.4, 1.25, 1], opacity: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+              >
+                {t.youWin}
+              </motion.p>
+              <motion.button
+                className="btn"
+                onClick={resetGame}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {t.playAgain}
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
       <section className="player-section">
         <h2>{t.yourHand(gameState.playerHand.length)}</h2>
         <div className="card-row">
-          {gameState.playerHand.map((card, idx) => (
-            <div
-              key={`${card.kind}-${card.suit}-${idx}`}
-              className={[
-                "card-wrapper",
-                gameState.phase === GamePhase.PlayerTurn ? "clickable" : "",
-                selectedIdxs.includes(idx) ? "selected" : "",
-              ]
-                .join(" ")
-                .trim()}
-              onClick={() => toggleCard(idx)}
-            >
-              {selectedIdxs.includes(idx) && (
-                <div className="card-badge">
-                  {selectedIdxs.indexOf(idx) + 1}
-                </div>
-              )}
-              <Card card={card} />
-            </div>
-          ))}
+          <AnimatePresence>
+            {gameState.playerHand.map((card, idx) => {
+              const isSelected = selectedIdxs.includes(idx);
+              const isClickable = gameState.phase === GamePhase.PlayerTurn;
+              return (
+                <motion.div
+                  key={`${card.kind}-${card.suit}`}
+                  className={[
+                    "card-wrapper",
+                    isClickable ? "clickable" : "",
+                    isSelected ? "selected" : "",
+                  ]
+                    .join(" ")
+                    .trim()}
+                  initial={{ y: -70, opacity: 0, scale: 0.8 }}
+                  animate={{ y: isSelected ? -20 : 0, opacity: 1, scale: 1 }}
+                  exit={{ y: 50, opacity: 0, scale: 0.75 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 22,
+                    delay: idx * 0.05,
+                  }}
+                  whileHover={
+                    isClickable && !isSelected ? { y: -8, scale: 1.03 } : {}
+                  }
+                  onClick={() => toggleCard(idx)}
+                >
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        className="card-badge"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 18,
+                        }}
+                      >
+                        {selectedIdxs.indexOf(idx) + 1}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <Card card={card} />
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </section>
     </div>
