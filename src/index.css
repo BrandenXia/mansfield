@@ -132,6 +132,13 @@ body {
   transform: translateY(-20px);
 }
 
+.card-wrapper.focused .card-face {
+  box-shadow:
+    0 0 0 2.5px #e9c46a,
+    0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 2.7px / 3.5px;
+}
+
 .card-badge {
   position: absolute;
   top: -10px;
