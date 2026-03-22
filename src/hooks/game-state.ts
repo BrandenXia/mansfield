@@ -3,7 +3,7 @@ import { useReducer } from "react";
 
 import type { CardType } from "@/components/Card";
 
-enum GamePhase {
+export enum GamePhase {
   PlayerTurn,
   Animation,
   DrawCards,
@@ -29,6 +29,7 @@ type GameState = {
       cardsToDraw: number;
       capturedCard: CardType | null;
     }
+  | { phase: GamePhase.GameOver }
 );
 
 enum GameActionType {
@@ -107,7 +108,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       switch (action.type) {
         case GameActionType.NextPhase:
           const modifer = state.playedHand.modifiers.pop();
-          if (!modifer) throw new Error("No more modifiers");
+          if (!modifer)
+            return {
+              ...state,
+              phase: GamePhase.DrawCards,
+              cardsToDraw: state.drawNextRound,
+              capturedCard: state.captureEnemyCard ? state.enemyHand : null,
+            };
           let mainValue = state.mainValue;
           let drawNextRound = state.drawNextRound;
           let captureEnemyCard = state.captureEnemyCard;
@@ -128,6 +135,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
             default: mainValue += 1;
           }
 
+          // TODO: continue to one more round of modifier application even when
+          // there's no card left in the deck, so that the player can see the
+          // final result of their play
           if (state.playedHand.modifiers.length !== 0)
             return {
               ...state,
@@ -136,13 +146,25 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
               captureEnemyCard,
               cardsToAdd,
             };
-          else
+          if (mainValue < KIND2NUMBER[state.enemyHand.kind])
             return {
               ...state,
-              phase: GamePhase.DrawCards,
-              cardsToDraw: drawNextRound,
-              capturedCard: captureEnemyCard ? state.enemyHand : null,
+              phase: GamePhase.GameOver,
             };
+
+          if (state.remainingDeck.length === 0)
+            return {
+              ...state,
+              // TODO: use a separate state for win/loss, or continue to use a new deck when there's no card left
+              phase: GamePhase.GameOver,
+            };
+
+          return {
+            ...state,
+            phase: GamePhase.DrawCards,
+            cardsToDraw: drawNextRound,
+            capturedCard: captureEnemyCard ? state.enemyHand : null,
+          };
         default:
           throw new Error("Invalid action type");
       }
@@ -150,19 +172,28 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const playerHand = [...state.playerHand];
       playerHand.push(...state.remainingDeck.slice(0, state.cardsToDraw));
       playerHand.push(...(state.capturedCard ? [state.capturedCard] : []));
+      let remainingDeck = state.remainingDeck.slice(state.cardsToDraw);
+      const enemyHand = remainingDeck[0]!;
+      remainingDeck = remainingDeck.slice(1);
+
       return {
         ...state,
         phase: GamePhase.PlayerTurn,
         playerHand,
+        enemyHand,
+        remainingDeck,
       };
+    default:
+      return state;
   }
 };
 
 const useGameState = () => {
   const [gameState, dispatch] = useReducer(gameReducer, initGameState());
-  return { gameState, dispatch };
+  const useCard = (idxs: number[]) =>
+    dispatch({ type: GameActionType.UseCard, idxs });
+  const nextPhase = () => dispatch({ type: GameActionType.NextPhase });
+  return { gameState, useCard, nextPhase };
 };
-
-console.log(allCards);
 
 export default useGameState;
