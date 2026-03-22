@@ -66,7 +66,11 @@ const en: Translations = {
     "If your final value exceeds the enemy\u2019s, you win the round!",
   ],
   cardReferenceTitle: "Card Reference",
-  cardTableHeaders: { card: "Card", value: "Value", modifierEffect: "Modifier Effect" },
+  cardTableHeaders: {
+    card: "Card",
+    value: "Value",
+    modifierEffect: "Modifier Effect",
+  },
   cardDescriptions: [
     {
       rank: "Ace",
@@ -99,7 +103,7 @@ const en: Translations = {
         "Draw 2 extra cards at the start of the next round if your current hand has 5 or fewer cards.",
     },
     {
-      rank: "8 - King",
+      rank: "8 - K",
       value: "8 - 13",
       modifier: "Adds 1 to the main card's value.",
     },
