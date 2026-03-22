@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "@/components/Card";
+import HelpModal from "@/components/HelpModal";
 import useGameState, { GamePhase } from "@/hooks/game-state";
 
 import "./index.css";
@@ -7,6 +8,7 @@ import "./index.css";
 const App = () => {
   const { gameState, useCard, nextPhase, resetGame } = useGameState();
   const [selectedIdxs, setSelectedIdxs] = useState<number[]>([]);
+  const [showHelp, setShowHelp] = useState(false);
 
   const toggleCard = (idx: number) => {
     if (gameState.phase !== GamePhase.PlayerTurn) return;
@@ -23,6 +25,16 @@ const App = () => {
 
   return (
     <div className="game-board">
+      <button
+        className="help-btn"
+        onClick={() => setShowHelp(true)}
+        aria-label="Help"
+      >
+        ?
+      </button>
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
       <section className="enemy-section">
         <h2>Enemy</h2>
         <Card card={gameState.enemyHand} />
