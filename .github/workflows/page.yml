@@ -2,6 +2,10 @@ name: Build GitHub Page
 
 on:
   push:
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
 
 jobs:
   build:
