@@ -1,6 +1,6 @@
 # Man's Field
 
-A card game.
+A card game created during a trip in Yellowstone.
 
 ## Credits
 
