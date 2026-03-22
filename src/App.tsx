@@ -5,7 +5,7 @@ import useGameState, { GamePhase } from "@/hooks/game-state";
 import "./index.css";
 
 const App = () => {
-  const { gameState, useCard, nextPhase } = useGameState();
+  const { gameState, useCard, nextPhase, resetGame } = useGameState();
   const [selectedIdxs, setSelectedIdxs] = useState<number[]>([]);
 
   const toggleCard = (idx: number) => {
@@ -91,6 +91,24 @@ const App = () => {
             )}
             <button className="btn" onClick={nextPhase}>
               Draw Cards
+            </button>
+          </>
+        )}
+
+        {gameState.phase === GamePhase.GameOver && (
+          <>
+            <p>Game Over! Your value wasn&apos;t enough to beat the enemy.</p>
+            <button className="btn" onClick={resetGame}>
+              Play Again
+            </button>
+          </>
+        )}
+
+        {gameState.phase === GamePhase.Win && (
+          <>
+            <p>You win! You&apos;ve cleared the entire deck!</p>
+            <button className="btn" onClick={resetGame}>
+              Play Again
             </button>
           </>
         )}
