@@ -1,52 +1,10 @@
 import { useEffect, type FC } from "react";
+import type { Translations } from "@/i18n/translations";
 
-const cardDescriptions: { rank: string; value: string; modifier: string }[] = [
-  {
-    rank: "Ace",
-    value: "1",
-    modifier: "Returns the main card to your hand after playing.",
-  },
-  {
-    rank: "2",
-    value: "2",
-    modifier: "Doubles the main card's value.",
-  },
-  {
-    rank: "3",
-    value: "3",
-    modifier: "Adds 5 to the main card's value.",
-  },
-  {
-    rank: "4",
-    value: "4",
-    modifier:
-      "Adds 3 to the main card's value and returns itself to your hand.",
-  },
-  {
-    rank: "5",
-    value: "5",
-    modifier:
-      "Captures the enemy card and adds it to your hand if you win the round.",
-  },
-  {
-    rank: "6",
-    value: "6",
-    modifier: "Draw 1 extra card at the start of the next round.",
-  },
-  {
-    rank: "7",
-    value: "7",
-    modifier:
-      "Draw 2 extra cards at the start of the next round if your current hand has 5 or fewer cards.",
-  },
-  {
-    rank: "8 - King",
-    value: "8 - 13",
-    modifier: "Adds 1 to the main card's value.",
-  },
-];
-
-const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
+const HelpModal: FC<{ onClose: () => void; t: Translations }> = ({
+  onClose,
+  t,
+}) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -65,11 +23,11 @@ const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="help-header">
-          <h2 id="help-title">How to Play</h2>
+          <h2 id="help-title">{t.helpTitle}</h2>
           <button
             className="help-close-btn"
             onClick={onClose}
-            aria-label="Close help"
+            aria-label={t.closeHelp}
           >
             ✕
           </button>
@@ -77,45 +35,32 @@ const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
 
         <div className="help-content">
           <section className="help-section">
-            <h3>Objective</h3>
-            <p>
-              Beat the enemy card by playing a main card with a higher value.
-              Use modifier cards to boost your main card's value or gain special
-              effects.
-            </p>
+            <h3>{t.objectiveTitle}</h3>
+            <p>{t.objectiveText}</p>
           </section>
 
           <section className="help-section">
-            <h3>How to Play a Turn</h3>
+            <h3>{t.howToPlayTitle}</h3>
             <ol>
-              <li>Select one or more cards from your hand.</li>
-              <li>
-                The <strong>first card selected</strong> is your{" "}
-                <strong>main card</strong> — its face value must beat the enemy.
-              </li>
-              <li>
-                Any <strong>additional cards</strong> become{" "}
-                <strong>modifiers</strong> and are applied in reverse order.
-              </li>
-              <li>
-                If your final value exceeds the enemy's, you win the round!
-              </li>
+              {t.howToPlaySteps.map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
             </ol>
           </section>
 
           <section className="help-section">
-            <h3>Card Reference</h3>
+            <h3>{t.cardReferenceTitle}</h3>
             <div className="help-table-wrapper">
               <table className="help-table">
                 <thead>
                   <tr>
-                    <th>Card</th>
-                    <th>Value</th>
-                    <th>Modifier Effect</th>
+                    <th>{t.cardTableHeaders.card}</th>
+                    <th>{t.cardTableHeaders.value}</th>
+                    <th>{t.cardTableHeaders.modifierEffect}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {cardDescriptions.map(({ rank, value, modifier }) => (
+                  {t.cardDescriptions.map(({ rank, value, modifier }) => (
                     <tr key={rank}>
                       <td className="rank-cell">{rank}</td>
                       <td className="value-cell">{value}</td>
