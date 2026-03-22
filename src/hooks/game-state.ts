@@ -3,7 +3,7 @@ import { useReducer } from "react";
 
 import type { CardType } from "@/components/Card";
 
-enum GamePhase {
+export enum GamePhase {
   PlayerTurn,
   Animation,
   DrawCards,
@@ -107,7 +107,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       switch (action.type) {
         case GameActionType.NextPhase:
           const modifer = state.playedHand.modifiers.pop();
-          if (!modifer) throw new Error("No more modifiers");
+          if (!modifer)
+            return {
+              ...state,
+              phase: GamePhase.DrawCards,
+              cardsToDraw: state.drawNextRound,
+              capturedCard: state.captureEnemyCard ? state.enemyHand : null,
+            };
           let mainValue = state.mainValue;
           let drawNextRound = state.drawNextRound;
           let captureEnemyCard = state.captureEnemyCard;
@@ -160,9 +166,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
 const useGameState = () => {
   const [gameState, dispatch] = useReducer(gameReducer, initGameState());
-  return { gameState, dispatch };
+  const useCard = (idxs: number[]) =>
+    dispatch({ type: GameActionType.UseCard, idxs });
+  const nextPhase = () => dispatch({ type: GameActionType.NextPhase });
+  return { gameState, useCard, nextPhase };
 };
-
-console.log(allCards);
 
 export default useGameState;
