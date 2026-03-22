@@ -17,3 +17,4 @@ bun build ./src/index.html \
 cp -r ./public ./dist/
 cp ./public/sw.js ./dist/
 cp ./public/manifest.json ./dist/
+bun run ./scripts/optimize-svg.js ./dist/public/cards
