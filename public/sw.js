@@ -3,8 +3,19 @@ const CACHE_NAME = `mansfield-${CACHE_VERSION}`;
 
 const SUITS = ["Clubs", "Diamonds", "Hearts", "Spades"];
 const NUMBERS = [
-  "2", "3", "4", "5", "6", "7", "8", "9", "10",
-  "Ace", "Jack", "Queen", "King",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "Ace",
+  "Jack",
+  "Queen",
+  "King",
 ];
 
 const CARD_URLS = [
@@ -12,7 +23,7 @@ const CARD_URLS = [
   "/public/cards/BackRed.svg",
   "/public/cards/Suit=Other,Number=Joker.svg",
   ...SUITS.flatMap((suit) =>
-    NUMBERS.map((num) => `/public/cards/Suit=${suit},Number=${num}.svg`)
+    NUMBERS.map((num) => `/public/cards/Suit=${suit},Number=${num}.svg`),
   ),
 ];
 
@@ -25,7 +36,7 @@ self.addEventListener("install", (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -37,13 +48,12 @@ self.addEventListener("activate", (event) => {
         Promise.all(
           cacheNames
             .filter(
-              (name) =>
-                name.startsWith("mansfield-") && name !== CACHE_NAME
+              (name) => name.startsWith("mansfield-") && name !== CACHE_NAME,
             )
-            .map((name) => caches.delete(name))
-        )
+            .map((name) => caches.delete(name)),
+        ),
       )
-      .then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 
@@ -60,12 +70,10 @@ self.addEventListener("fetch", (event) => {
       fetch(request)
         .then((response) => {
           const clone = response.clone();
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match("/").then((res) => res ?? Response.error()))
+        .catch(() => caches.match("/").then((res) => res ?? Response.error())),
     );
     return;
   }
@@ -87,6 +95,6 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         return response;
       });
-    })
+    }),
   );
 });

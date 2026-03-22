@@ -12,7 +12,7 @@ const server = serve({
         headers: { "Content-Type": "application/manifest+json" },
       }),
     "/*": index,
-    "/public/*": async (req) => {
+    "/public/*.svg": async (req) => {
       const url = new URL(req.url);
       const path = url.pathname.replace("/public/", "");
       const file = await Bun.file(`./public/${path}`).arrayBuffer();
