@@ -7,6 +7,11 @@ import useLanguage from "@/hooks/use-language";
 
 import "./index.css";
 
+// Duration of the battle shake animation in milliseconds. The phase transition
+// fires slightly after the animation completes.
+const BATTLE_ANIMATION_MS = 550;
+const BATTLE_TRANSITION_DELAY_MS = BATTLE_ANIMATION_MS + 100;
+
 const phaseVariants: Variants = {
   hidden: { opacity: 0, scale: 0.95, y: 8 },
   visible: {
@@ -52,7 +57,7 @@ const App = () => {
       setTimeout(() => {
         setIsBattling(false);
         nextPhase();
-      }, 650);
+      }, BATTLE_TRANSITION_DELAY_MS);
     } else {
       nextPhase();
     }
@@ -82,7 +87,7 @@ const App = () => {
           }
           transition={
             isBattling
-              ? { duration: 0.55, ease: "easeInOut" }
+              ? { duration: BATTLE_ANIMATION_MS / 1000, ease: "easeInOut" }
               : { type: "spring", stiffness: 220, damping: 22 }
           }
         >
@@ -150,7 +155,7 @@ const App = () => {
                         ? { x: [0, 10, -10, 7, -5, 0], scale: [1, 1.1, 1.1, 1] }
                         : {}
                     }
-                    transition={{ duration: 0.55, ease: "easeInOut" }}
+                    transition={{ duration: BATTLE_ANIMATION_MS / 1000, ease: "easeInOut" }}
                   >
                     <Card card={gameState.playedHand.main} />
                   </motion.div>
@@ -312,6 +317,9 @@ const App = () => {
               const isClickable = gameState.phase === GamePhase.PlayerTurn;
               return (
                 <motion.div
+                  // Cards use kind+suit as key (unique per standard 52-card deck).
+                  // Index-based keys would break AnimatePresence since indices
+                  // shift when cards are removed, causing wrong re-animations.
                   key={`${card.kind}-${card.suit}`}
                   className={[
                     "card-wrapper",
@@ -324,10 +332,21 @@ const App = () => {
                   animate={{ y: isSelected ? -20 : 0, opacity: 1, scale: 1 }}
                   exit={{ y: 50, opacity: 0, scale: 0.75 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 260,
-                    damping: 22,
-                    delay: idx * 0.05,
+                    // y responds immediately so card selection lift is instant
+                    y: { type: "spring", stiffness: 260, damping: 22 },
+                    // opacity/scale use stagger delay only on initial entry
+                    opacity: {
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 22,
+                      delay: idx * 0.05,
+                    },
+                    scale: {
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 22,
+                      delay: idx * 0.05,
+                    },
                   }}
                   whileHover={
                     isClickable && !isSelected ? { y: -8, scale: 1.03 } : {}
