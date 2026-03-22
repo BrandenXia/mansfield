@@ -19,15 +19,15 @@ const NUMBERS = [
 ];
 
 const CARD_URLS = [
-  "/public/cards/BackBlue.svg",
-  "/public/cards/BackRed.svg",
-  "/public/cards/Suit=Other,Number=Joker.svg",
+  "./public/cards/BackBlue.svg",
+  "./public/cards/BackRed.svg",
+  "./public/cards/Suit=Other,Number=Joker.svg",
   ...SUITS.flatMap((suit) =>
-    NUMBERS.map((num) => `/public/cards/Suit=${suit},Number=${num}.svg`),
+    NUMBERS.map((num) => `./public/cards/Suit=${suit},Number=${num}.svg`),
   ),
 ];
 
-const APP_SHELL = ["/", "/manifest.json"];
+const APP_SHELL = ["./", "./manifest.json"];
 
 const PRECACHE_URLS = [...APP_SHELL, ...CARD_URLS];
 
