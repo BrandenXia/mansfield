@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
   // Only handle same-origin requests
   if (url.origin !== self.location.origin) return;
 
-  // Navigation requests: network-first with offline fallback to cached "/"
+  // Navigation requests: network-first with offline fallback to cached scope root
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -73,7 +73,11 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match("/").then((res) => res ?? Response.error())),
+        .catch(() =>
+          caches
+            .match(self.registration.scope)
+            .then((res) => res ?? Response.error()),
+        ),
     );
     return;
   }
