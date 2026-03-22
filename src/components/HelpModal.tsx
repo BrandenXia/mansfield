@@ -19,12 +19,14 @@ const cardDescriptions: { rank: string; value: string; modifier: string }[] = [
   {
     rank: "4",
     value: "4",
-    modifier: "Adds 3 to the main card's value and returns itself to your hand.",
+    modifier:
+      "Adds 3 to the main card's value and returns itself to your hand.",
   },
   {
     rank: "5",
     value: "5",
-    modifier: "Captures the enemy card and adds it to your hand if you win the round.",
+    modifier:
+      "Captures the enemy card and adds it to your hand if you win the round.",
   },
   {
     rank: "6",
@@ -34,36 +36,12 @@ const cardDescriptions: { rank: string; value: string; modifier: string }[] = [
   {
     rank: "7",
     value: "7",
-    modifier: "Draw 2 extra cards at the start of the next round.",
+    modifier:
+      "Draw 2 extra cards at the start of the next round if your current hand has 5 or fewer cards.",
   },
   {
-    rank: "8",
-    value: "8",
-    modifier: "Adds 1 to the main card's value.",
-  },
-  {
-    rank: "9",
-    value: "9",
-    modifier: "Adds 1 to the main card's value.",
-  },
-  {
-    rank: "10",
-    value: "10",
-    modifier: "Adds 1 to the main card's value.",
-  },
-  {
-    rank: "Jack",
-    value: "11",
-    modifier: "Adds 1 to the main card's value.",
-  },
-  {
-    rank: "Queen",
-    value: "12",
-    modifier: "Adds 1 to the main card's value.",
-  },
-  {
-    rank: "King",
-    value: "13",
+    rank: "8 - King",
+    value: "8 - 13",
     modifier: "Adds 1 to the main card's value.",
   },
 ];
@@ -88,7 +66,11 @@ const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
       >
         <div className="help-header">
           <h2 id="help-title">How to Play</h2>
-          <button className="help-close-btn" onClick={onClose} aria-label="Close help">
+          <button
+            className="help-close-btn"
+            onClick={onClose}
+            aria-label="Close help"
+          >
             ✕
           </button>
         </div>
@@ -97,8 +79,9 @@ const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
           <section className="help-section">
             <h3>Objective</h3>
             <p>
-              Beat the enemy card by playing a main card with a higher value. Use
-              modifier cards to boost your main card's value or gain special effects.
+              Beat the enemy card by playing a main card with a higher value.
+              Use modifier cards to boost your main card's value or gain special
+              effects.
             </p>
           </section>
 
@@ -114,7 +97,9 @@ const HelpModal: FC<{ onClose: () => void }> = ({ onClose }) => {
                 Any <strong>additional cards</strong> become{" "}
                 <strong>modifiers</strong> and are applied in reverse order.
               </li>
-              <li>If your final value exceeds the enemy's, you win the round!</li>
+              <li>
+                If your final value exceeds the enemy's, you win the round!
+              </li>
             </ol>
           </section>
 

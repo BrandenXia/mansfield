@@ -43,7 +43,10 @@ const App = () => {
       <section className="game-info">
         {gameState.phase === GamePhase.PlayerTurn && (
           <>
-            <p>Select cards to play — first card is your main, rest are modifiers.</p>
+            <p>
+              Select cards to play — first card is your main, rest are
+              modifiers.
+            </p>
             <p>Deck: {gameState.remainingDeck.length} remaining</p>
             <button
               className="btn"
@@ -75,7 +78,10 @@ const App = () => {
                   </span>
                   <div className="card-row">
                     {gameState.playedHand.modifiers.map((card, i) => (
-                      <Card key={`${card.kind}-${card.suit}-${i}`} card={card} />
+                      <Card
+                        key={`${card.kind}-${card.suit}-${i}`}
+                        card={card}
+                      />
                     ))}
                   </div>
                 </div>
@@ -142,7 +148,9 @@ const App = () => {
               onClick={() => toggleCard(idx)}
             >
               {selectedIdxs.includes(idx) && (
-                <div className="card-badge">{selectedIdxs.indexOf(idx) + 1}</div>
+                <div className="card-badge">
+                  {selectedIdxs.indexOf(idx) + 1}
+                </div>
               )}
               <Card card={card} />
             </div>
