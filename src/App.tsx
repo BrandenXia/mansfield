@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "@/components/Card";
+import HelpModal from "@/components/HelpModal";
 import useGameState, { GamePhase } from "@/hooks/game-state";
 
 import "./index.css";
@@ -7,6 +8,7 @@ import "./index.css";
 const App = () => {
   const { gameState, useCard, nextPhase, resetGame } = useGameState();
   const [selectedIdxs, setSelectedIdxs] = useState<number[]>([]);
+  const [showHelp, setShowHelp] = useState(false);
 
   const toggleCard = (idx: number) => {
     if (gameState.phase !== GamePhase.PlayerTurn) return;
@@ -23,6 +25,16 @@ const App = () => {
 
   return (
     <div className="game-board">
+      <button
+        className="help-btn"
+        onClick={() => setShowHelp(true)}
+        aria-label="Help"
+      >
+        ?
+      </button>
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+
       <section className="enemy-section">
         <h2>Enemy</h2>
         <Card card={gameState.enemyHand} />
@@ -31,7 +43,10 @@ const App = () => {
       <section className="game-info">
         {gameState.phase === GamePhase.PlayerTurn && (
           <>
-            <p>Select cards to play — first card is your main, rest are modifiers.</p>
+            <p>
+              Select cards to play — first card is your main, rest are
+              modifiers.
+            </p>
             <p>Deck: {gameState.remainingDeck.length} remaining</p>
             <button
               className="btn"
@@ -63,7 +78,10 @@ const App = () => {
                   </span>
                   <div className="card-row">
                     {gameState.playedHand.modifiers.map((card, i) => (
-                      <Card key={`${card.kind}-${card.suit}-${i}`} card={card} />
+                      <Card
+                        key={`${card.kind}-${card.suit}-${i}`}
+                        card={card}
+                      />
                     ))}
                   </div>
                 </div>
@@ -130,7 +148,9 @@ const App = () => {
               onClick={() => toggleCard(idx)}
             >
               {selectedIdxs.includes(idx) && (
-                <div className="card-badge">{selectedIdxs.indexOf(idx) + 1}</div>
+                <div className="card-badge">
+                  {selectedIdxs.indexOf(idx) + 1}
+                </div>
               )}
               <Card card={card} />
             </div>
