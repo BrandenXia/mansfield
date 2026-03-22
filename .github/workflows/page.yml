@@ -1,5 +1,8 @@
 name: Build GitHub Page
 
+on:
+  push:
+
 jobs:
   build:
     runs-on: ubuntu-latest
