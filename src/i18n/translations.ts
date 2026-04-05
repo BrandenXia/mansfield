@@ -164,5 +164,59 @@ const zh: Translations = {
   closeHelp: "关闭帮助",
 };
 
-export const translations: Record<string, Translations> = { en, zh };
+// ==================== JAPANESE (ja) ====================
+const ja: Translations = {
+  enemy: "敵",
+  yourHand: (count) => `手札（${count}）`,
+  selectCardsHint: "出すカードを選んでください——最初のカードがメインカード、残りは修飾カードです。",
+  deckRemaining: (count) => `山札：残り ${count} 枚`,
+  selectCardsToPlay: "出すカードを選んでください",
+  playCards: (count) => `出す（${count} 枚）`,
+  currentValue: "現在の値：",
+  mainCard: "メインカード",
+  modifiers: (count) => `修飾カード（${count}）`,
+  applyNextModifier: "次の修飾効果を適用",
+  continue: "続ける",
+  drawCards: (count) => `${count} 枚引く`,
+  captured: "捕獲！",
+  drawCardsBtn: "カードを引く",
+  gameOver: "ゲームオーバー！あなたの値は敵を倒すには足りませんでした。",
+  youWin: "あなたの勝ち！デック全体をクリアしました！",
+  playAgain: "もう一度プレイ",
+  help: "ヘルプ",
+  helpTitle: "遊び方",
+  objectiveTitle: "目標",
+  objectiveText:
+    "より高い値のメインカードを出して敵のカードを倒しましょう。修飾カードを使ってメインカードの値を上げたり、特殊効果を得たりできます。",
+  howToPlayTitle: "ターンの進め方",
+  howToPlaySteps: [
+    "手札から1枚以上のカードを選んでください。",
+    "最初に選んだカードがメインカードです——その数値が敵を上回る必要があります。",
+    "追加で選んだカードは修飾カードになり、逆順に適用されます。",
+    "最終的な値が敵を超えれば、このラウンドの勝利です！",
+  ],
+  cardReferenceTitle: "カード一覧",
+  cardTableHeaders: { card: "カード", value: "数値", modifierEffect: "修飾効果" },
+  cardDescriptions: [
+    { rank: "A", value: "1", modifier: "出した後、メインカードを手札に戻す。" },
+    { rank: "2", value: "2", modifier: "メインカードの値を2倍にする。" },
+    { rank: "3", value: "3", modifier: "メインカードの値に5を加える。" },
+    { rank: "4", value: "4", modifier: "メインカードの値に3を加え、このカード自身を手札に戻す。" },
+    {
+      rank: "5",
+      value: "5",
+      modifier: "このラウンドに勝った場合、敵のカードを捕獲して手札に加える。",
+    },
+    { rank: "6", value: "6", modifier: "次のラウンド開始時に追加で1枚引く。" },
+    {
+      rank: "7",
+      value: "7",
+      modifier: "現在の手札が5枚以下の場合、次のラウンド開始時に追加で2枚引く。",
+    },
+    { rank: "8 - K", value: "8 - 13", modifier: "メインカードの値に1を加える。" },
+  ],
+  closeHelp: "ヘルプを閉じる",
+};
+
+export const translations: Record<string, Translations> = { en, zh, ja };
 export type { Translations };
